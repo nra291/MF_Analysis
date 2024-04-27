@@ -1,0 +1,12 @@
+# pip install -r requirements.txt
+
+
+streamlit
+ngrok
+pandas
+yfinance
+pathlib
+PyPDF2
+tabula
+plotly
+openpyxl
