@@ -327,8 +327,6 @@ def st_sidebar(df):
     key_values = [sorted_fund_keys[i] for i in range(len(sorted_fund_keys)) if checked_values[i]]
 
 
-
-
     # Filter the DataFrame based on selected options
     filtered_df = df[df['mf_key'].isin(key_values)]
 
