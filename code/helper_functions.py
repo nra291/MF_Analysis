@@ -302,3 +302,48 @@ def sl_tabs():
         df_n = prepare_data(c.rel_data_folder)
         # sl_line_chart(df_n)
         sl_tab_chart(df_s, "k3")
+
+
+def st_sidebar(df):
+
+    # Using object notation
+    add_selectbox = l.st.sidebar.selectbox(
+        "Name",
+        ("Silky", "Bablu", "Nitin")
+    )
+    l.st.text("")
+
+    checked_values = []  # Empty list to store selected checkbox values
+    key_values = []  # Empty list to store selected checkbox values
+
+    # Using "with" notation
+    with l.st.sidebar:
+        sorted_fund_keys = sorted(df["mf_key"].unique())
+        for fund in sorted_fund_keys:
+            # l.st.checkbox(label=fund, key=fund)
+            checked_values.append(l.st.checkbox(label=fund, key=fund))
+
+
+    key_values = [sorted_fund_keys[i] for i in range(len(sorted_fund_keys)) if checked_values[i]]
+
+
+
+
+    # Filter the DataFrame based on selected options
+    filtered_df = df[df['mf_key'].isin(key_values)]
+
+
+    # Create the line chart with hover template
+    fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key,hover_data=c.percent_return)#,responsive=True, width=400, height=300)
+                # Update layout to disable zoom and adjust font size (optional)
+    fig.update_layout(
+                    xaxis_fixedrange=True,  # Fix x-axis range
+                    yaxis_fixedrange=True,  # Fix y-axis range
+                    # Optional: Adjust font size for mobile readability
+                    title_font_size=14,
+                    xaxis_title_font_size=12,
+                    yaxis_title_font_size=12,)
+    
+    # fig.update_layout(width=1440, height=600)
+    
+    l.st.plotly_chart(fig)
