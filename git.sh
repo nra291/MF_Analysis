@@ -6,6 +6,8 @@ git add .
 git commit -m "Description for change"
 git push -u origin master
 
+# i have created the git.sh file
+# to run this every time.   type the following on terminal :    ./git.sh
 
 # ---------------
 # First Time
