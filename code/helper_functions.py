@@ -233,12 +233,11 @@ def sl_tab_chart(df, f_key):
     if options:
         # Filter the DataFrame based on selected options
         filtered_df = df[df['mf_key'].isin(options)]
-        # l.st.line_chart(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key)
 
 
         # Create the line chart with hover template
         fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key, hover_data=c.percent_return)
-        fig.update_layout(width=1440, height=600)
+        # fig.update_layout(width=1440, height=600)
         l.st.plotly_chart(fig)
 
 
