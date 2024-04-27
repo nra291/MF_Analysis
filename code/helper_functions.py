@@ -25,7 +25,14 @@ def prepare_data(folder):
     else:
         raise Exception("No xlsx files found in the specified folder.")
 
-
+def ensure_relative_path(folder):
+    # Normalize the path first
+    normalized_path = h.l.os.path.normpath(folder)
+    
+    # Convert to relative path from current working directory
+    relative_path = h.l.os.path.relpath(normalized_path)
+    
+    return relative_path
 
 def get_filenames(folder_path):
   xlsx_filenames = []
@@ -270,7 +277,7 @@ def sl_tabs():
 
         l.st.text("")
 
-        df_s = prepare_data(c.data_folder)
+        df_s = prepare_data(c.rel_data_folder)
 
         # sl_line_chart(df_s)
         sl_tab_chart(df_s, "k1")
@@ -278,13 +285,13 @@ def sl_tabs():
     with tab2:
 
         l.st.text("")
-        df_b = prepare_data(c.data_folder)
+        df_b = prepare_data(c.rel_data_folder)
         # sl_line_chart(df_b)
         sl_tab_chart(df_s, "k2")
 
     with tab3:
 
         l.st.text("")
-        df_n = prepare_data(c.data_folder)
+        df_n = prepare_data(c.rel_data_folder)
         # sl_line_chart(df_n)
         sl_tab_chart(df_s, "k3")
