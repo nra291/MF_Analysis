@@ -236,8 +236,18 @@ def sl_tab_chart(df, f_key):
 
 
         # Create the line chart with hover template
-        fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key, hover_data=c.percent_return)
+        fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key,hover_data=c.percent_return)#,responsive=True, width=400, height=300)
+                    # Update layout to disable zoom and adjust font size (optional)
+        fig.update_layout(
+                        xaxis_fixedrange=True,  # Fix x-axis range
+                        yaxis_fixedrange=True,  # Fix y-axis range
+                        # Optional: Adjust font size for mobile readability
+                        title_font_size=14,
+                        xaxis_title_font_size=12,
+                        yaxis_title_font_size=12,)
+        
         # fig.update_layout(width=1440, height=600)
+        
         l.st.plotly_chart(fig)
 
 
@@ -273,8 +283,6 @@ def sl_tabs():
     tab1, tab2, tab3 = l.st.tabs(["AKDPA0263E", "AKDPA0314N", "AIXPA3414D" ])
 
     with tab1:
-
-        l.st.text("")
 
         df_s = prepare_data(c.rel_data_folder)
 
