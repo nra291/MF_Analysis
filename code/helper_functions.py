@@ -334,13 +334,25 @@ def st_sidebar(df):
     # Create the line chart with hover template
     fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key,hover_data=c.percent_return)#,responsive=True, width=400, height=300)
                 # Update layout to disable zoom and adjust font size (optional)
+    # fig.update_layout(
+    #                 xaxis_fixedrange=True,  # Fix x-axis range
+    #                 yaxis_fixedrange=True,  # Fix y-axis range
+    #                 # Optional: Adjust font size for mobile readability
+    #                 title_font_size=14,
+    #                 xaxis_title_font_size=12,
+    #                 yaxis_title_font_size=12,)
+    
     fig.update_layout(
-                    xaxis_fixedrange=True,  # Fix x-axis range
-                    yaxis_fixedrange=True,  # Fix y-axis range
-                    # Optional: Adjust font size for mobile readability
-                    title_font_size=14,
-                    xaxis_title_font_size=12,
-                    yaxis_title_font_size=12,)
+        xaxis=dict(
+            showspikes=True,  # Enable hover spike lines
+            spikemode="across",  # Draw spike line across the plot
+            spikesnap="cursor",  # Snap spike to cursor position
+            showline=True,  # Show x-axis line
+            showgrid=True,  # Show grid lines
+        ),
+        hovermode="x unified",  # Display x-axis value on hover
+    )
+
     
     # fig.update_layout(width=1440, height=600)
     
