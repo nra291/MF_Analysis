@@ -15,6 +15,9 @@ mf_key = "mf_key"
 scheme_short = "Scheme Name Short"
 percent_return = "Percentage Returns"
 nip = "NIP"
+pnl = "Profit/Loss"
+total_inv = "Total Investments"
+current_portfolio_value = "Current Portfolio Value"
 
 
 # Docker example : https://github.com/codereverser/folioman?tab=readme-ov-file

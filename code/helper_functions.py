@@ -4,33 +4,116 @@ import library as l
 import config as c
 
 
-def prepare_data(folder):
+class NoDataException(Exception):
+    pass
+
+class NoFilesFoundException(Exception):
+    pass
+
+def prepare_data_old(folder):
+    """
+    Prepare data from xlsx files in the specified folder.
+
+    Args:
+        folder (str): The folder path containing the xlsx files.
+
+    Returns:
+        pd.DataFrame: The prepared data.
+
+    Raises:
+        NoDataException: If no data was read for processing.
+        NoFilesFoundException: If no xlsx files were found in the specified folder.
+    """
     xlsx_filenames = get_filenames(folder)
     df_main = pd.DataFrame()
 
     if xlsx_filenames:
         df_list = []
         for filename in xlsx_filenames:
-            df_day = read_data(os.path.join(folder, filename+'.xlsx'))
+            df_day = read_data(os.path.join(folder, f'{filename}.xlsx'))
             if df_day is not None:
                 df_day['As_of_Date'] = filename
                 df_list.append(df_day)
 
         if df_list:
-            df_main = pd.concat(df_list, ignore_index=True)
+            df_main = pd.concat(df_list, ignore_index=True, sort=False)
             df_main = data_massaging(df_main)
             return df_main
+        else:
+            raise NoDataException("No Data was read for processing")
+    else:
+        raise NoFilesFoundException("No xlsx files found in the specified folder.")
+
+def prepare_data(folder):
+    xlsx_filenames = get_filenames(folder)
+    df_all_days = pd.DataFrame()
+    df_total_inv = pd.DataFrame()
+
+    if xlsx_filenames:
+        df_list_day = []
+        df_list_total_inv = []
+
+        for filename in xlsx_filenames:
+            file_data = read_data(os.path.join(folder, filename+'.xlsx'))
+            if file_data is not None:
+                # Get all data from row 12 onwards
+                df_day = file_data.iloc[12:]
+                # Assign the first row values to column names
+                df_day.columns = file_data.iloc[11]  
+                # Get the name from the first row
+                df_day['Person'] = file_data.iloc[0][1]
+                # Get the To date from row 7
+                todate = l.datetime.datetime.strptime((file_data.iloc[6][1]).strip(), "%d-%b-%Y")
+                df_day['As_of_Date'] = todate
+                # Keep appending the transaction data for all days
+                df_list_day.append(df_day)
+                
+
+                # Get data from rows 9 and 10
+                df_inv = file_data.iloc[9:10,:3]
+                # Assign the first row values to column names
+                df_inv.columns = file_data.iloc[8,:3]
+                # Get the To date from row 7
+                df_inv['As_of_Date'] = todate
+                # Keep appending the total Investment data for all days
+                df_list_total_inv.append(df_inv)
+
+        if df_list_day:
+            df_all_days = pd.concat(df_list_day, ignore_index=True)
+            df_all_days = data_massaging(df_all_days)
+
+            df_total_inv = pd.concat(df_list_total_inv, ignore_index=True)
+            df_total_inv = data_massaging_2(df_total_inv)
+
+            return df_all_days, df_total_inv
         else:
             raise Exception("No Data was read for processing")
     else:
         raise Exception("No xlsx files found in the specified folder.")
 
+
+def data_massaging_2(df):
+    df[c.current_portfolio_value] = df[c.current_portfolio_value].astype(float)
+    df[c.total_inv] = df[c.total_inv].astype(float)
+    df[c.pnl] = df[c.pnl].astype(float)
+
+    if c.as_of_date in df.columns:
+        df[c.as_of_date] = l.pd.to_datetime(df[c.as_of_date])
+        df[c.as_of_date] = df[c.as_of_date].dt.strftime("%d-%m-%Y")
+        df[c.as_of_date] = l.pd.to_datetime(df[c.as_of_date], format="%d-%m-%Y")
+
+    # sort the data on AS_of_Date
+    df.sort_values(by=c.as_of_date, inplace=True)
+
+    return df
+
+
 def ensure_relative_path(folder):
     # Normalize the path first
-    normalized_path = h.l.os.path.normpath(folder)
+    normalized_path = l.os.path.normpath(folder)
     
     # Convert to relative path from current working directory
-    relative_path = h.l.os.path.relpath(normalized_path)
+    relative_path = l.os.path.relpath(normalized_path)
     
     return relative_path
 
@@ -48,7 +131,8 @@ def get_filenames(folder_path):
 def read_data(file_path):
   try:
     # Read data using pandas, skip first 9 rows (start from row 10)
-    df = l.pd.read_excel(file_path, sheet_name=0, skiprows=11)
+    # df = l.pd.read_excel(file_path, sheet_name=0, skiprows=11)
+    df = l.pd.read_excel(file_path, header=None)
     return df
   except FileNotFoundError:
     print(f"Error: File not found - {file_path}")
@@ -60,18 +144,16 @@ def read_data(file_path):
 def data_massaging(df):
    #Remove all the Rows with no values
 
-
-    # filtered_data = list(filter(lambda row: not any(value == 0 for value in row), df))
+    df[c.current] = df[c.current].astype(float)
+    df[c.invested] = df[c.invested].astype(float)
 
     df = df[df[c.invested] != 0]
-
-
-    # df = l.pd.DataFrame(df)
-    # del filtered_data
 
     print(df.columns)
 
     if c.as_of_date in df.columns:
+        df[c.as_of_date] = l.pd.to_datetime(df[c.as_of_date])
+        df[c.as_of_date] = df[c.as_of_date].dt.strftime("%d-%m-%Y")
         df[c.as_of_date] = l.pd.to_datetime(df[c.as_of_date], format="%d-%m-%Y")
 
     # sort the data on AS_of_Date
@@ -87,6 +169,7 @@ def data_massaging(df):
     # Concatenate the values of the 'Category' and 'Folio No.' columns into a new column named 'Combined'
     df[c.mf_key] = df[c.scheme_short].str.cat(df[c.folio], sep='-')
 
+
     # Calculate percentage return, round to two decimals, and create a new column
     df[c.percent_return] = ((df[c.current] - df[c.invested]) / df[c.invested] * 100).round(2)
 
@@ -97,7 +180,6 @@ def data_massaging(df):
 
 
 # prompt: Convert category values from EQUITY to Equity,  Liquid Fund to Liquid, Cash to Liquid
-
 def consolidate_categories(df):
     df['Category'] = df['Category'].replace(['EQUITY'], 'Equity')
     df['Category'] = df['Category'].replace(['LIQUID FUND'], 'Liquid')
@@ -333,14 +415,7 @@ def st_sidebar(df):
 
     # Create the line chart with hover template
     fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key,hover_data=c.percent_return)#,responsive=True, width=400, height=300)
-                # Update layout to disable zoom and adjust font size (optional)
-    # fig.update_layout(
-    #                 xaxis_fixedrange=True,  # Fix x-axis range
-    #                 yaxis_fixedrange=True,  # Fix y-axis range
-    #                 # Optional: Adjust font size for mobile readability
-    #                 title_font_size=14,
-    #                 xaxis_title_font_size=12,
-    #                 yaxis_title_font_size=12,)
+
     
     fig.update_layout(
         xaxis=dict(
@@ -350,10 +425,51 @@ def st_sidebar(df):
             showline=True,  # Show x-axis line
             showgrid=True,  # Show grid lines
         ),
-        hovermode="x unified",  # Display x-axis value on hover
+        hovermode="x",  # Display x-axis value on hover
     )
 
-    
+
     # fig.update_layout(width=1440, height=600)
     
+    l.st.plotly_chart(fig)
+
+
+def st_total_investment(df):
+
+    fig = l.px.line(df,
+                    x=c.as_of_date,
+                    y=[c.total_inv, c.current_portfolio_value],
+                    title="Invested & Current Value over Time"
+                    )
+    
+    fig.update_layout(
+        xaxis=dict(
+            showspikes=True,  # Enable hover spike lines
+            spikemode="across",  # Draw spike line across the plot
+            spikesnap="cursor",  # Snap spike to cursor position
+            showline=True,  # Show x-axis line
+            showgrid=True,  # Show grid lines
+        ),
+        hovermode="x",  # Display x-axis value on hover
+    )
+
+    l.st.plotly_chart(fig)
+
+    fig = l.px.line(df,
+                    x=c.as_of_date,
+                    y=[c.pnl],
+                    title="Invested & Current Value over Time"
+                    )
+    
+    fig.update_layout(
+        xaxis=dict(
+            showspikes=True,  # Enable hover spike lines
+            spikemode="across",  # Draw spike line across the plot
+            spikesnap="cursor",  # Snap spike to cursor position
+            showline=True,  # Show x-axis line
+            showgrid=True,  # Show grid lines
+        ),
+        hovermode="x",  # Display x-axis value on hover
+    )
+
     l.st.plotly_chart(fig)

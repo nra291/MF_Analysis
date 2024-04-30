@@ -8,5 +8,10 @@ import config as c
 # ----------------------------------------------------------------------
 
 # h.sl_tabs()
-h.st_sidebar(h.prepare_data(c.rel_data_folder))
+# 
 
+
+d1, d2 = h.prepare_data(c.rel_data_folder)
+
+h.st_sidebar(d1)
+h.st_total_investment(d2)
