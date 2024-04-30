@@ -306,9 +306,10 @@ def sl_line_chart_1(df):
 def set_st_page_config():
     l.st.set_page_config(
     page_title="SBN Portfolio",
-    page_icon="🏂",
+    page_icon=":bar_chart:",
     layout="wide",
     initial_sidebar_state="expanded")
+
 
 
 def st_sidebar(df):
