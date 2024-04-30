@@ -303,90 +303,17 @@ def sl_line_chart_1(df):
         l.st.write("Please select at least one fund for comparison.")
 
 
-
-def sl_tab_chart(df, f_key):
-
-    sorted_fund_keys = sorted(df["mf_key"].unique())
-    options = l.st.multiselect(
-        'Select the Funds to compare',
-        # sorted_fund_keys)
-        sorted_fund_keys, key=f_key)
-
-    if options:
-        # Filter the DataFrame based on selected options
-        filtered_df = df[df['mf_key'].isin(options)]
-
-
-        # Create the line chart with hover template
-        fig = l.px.line(filtered_df, x = c.as_of_date, y = c.percent_return, color = c.mf_key,hover_data=c.percent_return)#,responsive=True, width=400, height=300)
-                    # Update layout to disable zoom and adjust font size (optional)
-        fig.update_layout(
-                        xaxis_fixedrange=True,  # Fix x-axis range
-                        yaxis_fixedrange=True,  # Fix y-axis range
-                        # Optional: Adjust font size for mobile readability
-                        title_font_size=14,
-                        xaxis_title_font_size=12,
-                        yaxis_title_font_size=12,)
-        
-        # fig.update_layout(width=1440, height=600)
-        
-        l.st.plotly_chart(fig)
-
-
-
-    else:
-        # Display a message if no options are selected
-        l.st.write("Please select at least one fund for comparison.")
-
-
-# Stream Lit Function with Tabs
-def sl_tabs():
-
-    l.st.set_page_config(layout="wide")
-
-    # Add this CSS to your app
-    body = {
-        "margin": "0",
-        "padding": "0",
-        "overflow": "hidden",
-    }
-
-    l.st.write(f"<style>{body}</style>", unsafe_allow_html=True)
-
-    # # Visualizations
-    # l.st.subheader('SBN - Portfolio')
-    # l.st.text("")
-    # selected_category = l.st.toggle('Include Liquid Funds ?')
-    # l.st.text("")
-    # l.st.text("")
-
-
-
-    tab1, tab2, tab3 = l.st.tabs(["AKDPA0263E", "AKDPA0314N", "AIXPA3414D" ])
-
-    with tab1:
-
-        df_s = prepare_data(c.rel_data_folder)
-
-        # sl_line_chart(df_s)
-        sl_tab_chart(df_s, "k1")
-
-    with tab2:
-
-        l.st.text("")
-        df_b = prepare_data(c.rel_data_folder)
-        # sl_line_chart(df_b)
-        sl_tab_chart(df_s, "k2")
-
-    with tab3:
-
-        l.st.text("")
-        df_n = prepare_data(c.rel_data_folder)
-        # sl_line_chart(df_n)
-        sl_tab_chart(df_s, "k3")
+def set_st_page_config():
+    l.st.set_page_config(
+    page_title="SBN Portfolio",
+    page_icon="🏂",
+    layout="wide",
+    initial_sidebar_state="expanded")
 
 
 def st_sidebar(df):
+
+    set_st_page_config()
 
     # Using object notation
     add_selectbox = l.st.sidebar.selectbox(
@@ -458,7 +385,7 @@ def st_total_investment(df):
     fig = l.px.line(df,
                     x=c.as_of_date,
                     y=[c.pnl],
-                    title="Invested & Current Value over Time"
+                    title="PnL Over Time"
                     )
     
     fig.update_layout(
