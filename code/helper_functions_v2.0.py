@@ -356,28 +356,9 @@ def st_sidebar(df):
 
 
 
-def plot_pnl(df):
-    fig = l.px.line(df,
-                    x=c.as_of_date,
-                    y=[c.pnl],
-                    title="PnL Over Time"
-                    )
-
-    fig.update_layout(
-        xaxis=dict(
-            showspikes=True,  # Enable hover spike lines
-            spikemode="across",  # Draw spike line across the plot
-            spikesnap="cursor",  # Snap spike to cursor position
-            showline=True,  # Show x-axis line
-            showgrid=True,  # Show grid lines
-        ),
-        hovermode="x",  # Display x-axis value on hover
-    )
-
-    l.st.plotly_chart(fig, use_container_width=True)
 
 
-def st_plot_overall(df):
+def st_total_investment(df):
 
     fig = l.px.line(df,
                     x=c.as_of_date,
@@ -398,6 +379,24 @@ def st_plot_overall(df):
 
     l.st.plotly_chart(fig)
 
+    fig = l.px.line(df,
+                    x=c.as_of_date,
+                    y=[c.pnl],
+                    title="PnL Over Time"
+                    )
+    
+    fig.update_layout(
+        xaxis=dict(
+            showspikes=True,  # Enable hover spike lines
+            spikemode="across",  # Draw spike line across the plot
+            spikesnap="cursor",  # Snap spike to cursor position
+            showline=True,  # Show x-axis line
+            showgrid=True,  # Show grid lines
+        ),
+        hovermode="x",  # Display x-axis value on hover
+    )
+
+    l.st.plotly_chart(fig, use_container_width=True)
 
 def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
     heatmap = l.alt.Chart(input_df).mark_rect().encode(
