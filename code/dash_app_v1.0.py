@@ -26,4 +26,6 @@ with bottom_col_2:
     h.plot_pnl(d2)
 
 h.st_sidebar(d1)
+
+#
     
