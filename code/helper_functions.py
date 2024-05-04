@@ -310,6 +310,9 @@ def st_sidebar(df):
     )
     l.st.text("")
 
+    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
+    selected_color_theme = l.st.selectbox('Select a color theme', color_theme_list)
+
     checked_values = []  # Empty list to store selected checkbox values
     key_values = []  # Empty list to store selected checkbox values
 
@@ -400,10 +403,10 @@ def st_plot_overall(df):
 
 
 def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
-    heatmap = l.alt.Chart(input_df).mark_rect().encode(
+    l.alt.Chart(input_df).mark_rect().encode(
             y=l.alt.Y(f'{input_y}:O', axis=l.alt.Axis(title="Year", titleFontSize=18, titlePadding=15, titleFontWeight=900, labelAngle=0)),
             x=l.alt.X(f'{input_x}:O', axis=l.alt.Axis(title="", titleFontSize=18, titlePadding=15, titleFontWeight=900)),
-            color=l.alt.Color(f'max({input_color}):Q',
+            color=l.alt.Color(f'{input_color}:Q',
                              legend=None,
                              scale=l.alt.Scale(scheme=input_color_theme)),
             stroke=l.alt.value('black'),
@@ -413,8 +416,8 @@ def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
         labelFontSize=12,
         titleFontSize=12
         ) 
-    # height=300
-    return heatmap
+    # l.st.altair_chart(heatmap, use_container_width=True)
+    # return heatmap
 
 def format_number(num):
     if num > 1000000:

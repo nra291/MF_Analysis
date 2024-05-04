@@ -28,5 +28,4 @@ with bottom_col_2:
 
 h.st_sidebar(d1)
 
-#
-    
+h.make_heatmap(d1, c.as_of_date, c.percent_return,c.mf_key, 'blues')
