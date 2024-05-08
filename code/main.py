@@ -40,7 +40,7 @@ with h.l.st.sidebar:
                                           accept_multiple_files=True)
     overwrite_checkbox = st.checkbox("Overwrite if FIle Exists ?")
     if uploaded_files:
-        save_uploaded_files(uploaded_files, c.rel_data_folder_new, overwrite_checkbox)
+        save_uploaded_files(uploaded_files, c.rel_data_folder, overwrite_checkbox)
 
 
 row2_col_1, row2_col_2= h.l.st.columns(2)
