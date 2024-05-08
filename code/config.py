@@ -1,6 +1,7 @@
 
 data_folder = "/Users/nra29/GDrive - DL02/MF_Analysis/data/2024"
 rel_data_folder = "data/2024"
+rel_data_folder_new = "data/2024/new"
 
 as_of_date = "As_of_Date"
 folio = "Folio No."

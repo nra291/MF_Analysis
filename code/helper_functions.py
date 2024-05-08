@@ -173,6 +173,7 @@ def data_massaging(df):
 def consolidate_categories(df):
 # prompt: Convert category values from EQUITY to Equity,  Liquid Fund to Liquid, Cash to Liquid
     df['Category'] = df['Category'].replace(['EQUITY'], 'Equity')
+    df['Category'] = df['Category'].replace(['EQUITY FUND'], 'Equity')
     df['Category'] = df['Category'].replace(['LIQUID FUND'], 'Liquid')
     df['Category'] = df['Category'].replace(['CASH'], 'Liquid')
     df['Category'] = df['Category'].replace(['LIQUID'], 'Liquid')
@@ -299,8 +300,6 @@ def set_config():
     l.st.title(" :bar_chart: SBN Portfolio") # Title inside the Dashboard
     l.st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
 
-
-
 def st_sidebar(df):
 
     # Using object notation
@@ -330,12 +329,28 @@ def st_sidebar(df):
     # Filter the DataFrame based on selected options
     filtered_df = df[df['mf_key'].isin(key_values)]
 
+    line_chart(filtered_df,c.as_of_date, c.percent_return, c.mf_key)
 
+def st_comparison(df):
+    sorted_fund_keys = sorted(df["mf_key"].unique()) # Only Select Equity Funds
+    default_options = sorted(df[(df['AMC Name'] == 'Quant MF') & (df['Category']=='Equity') & (df[c.scheme_short] != 'ICICI-AlphaLow')]["mf_key"].unique()) # Only Select Equity Funds
+    #  = sorted(df[(df['Category']=='Equity') & ()])]["mf_key"].unique()) # Only Select Equity Funds
+    options = l.st.multiselect(
+        label='Select the Funds to compare',
+        options=sorted_fund_keys,
+        default=default_options)
+
+    if options:
+        # Filter the DataFrame based on selected options
+        filtered_df = df[df['mf_key'].isin(options)]
+        line_chart(filtered_df,c.as_of_date, c.percent_return, c.mf_key)
+
+def line_chart(input_df, input_x, input_y, input_color):
     # Create the line chart with hover template
-    fig = l.px.line(filtered_df, 
-                    x = c.as_of_date, 
-                    y = c.percent_return, 
-                    color = c.mf_key,
+    fig = l.px.line(input_df, 
+                    x = input_x, 
+                    y = input_y, 
+                    color = input_color,
                     markers=True,
                     text=c.percent_return,
                     hover_data=c.percent_return)#,responsive=True, width=400, height=300)
@@ -352,13 +367,9 @@ def st_sidebar(df):
         hovermode="x",  # Display x-axis value on hover
     )
 
-
-    # fig.update_layout(width=1440, height=600)
     
     l.st.plotly_chart(fig, use_container_width=True)
-
-
-
+    
 def plot_pnl(df):
     fig = l.px.line(df,
                     x=c.as_of_date,
@@ -378,7 +389,6 @@ def plot_pnl(df):
     )
 
     l.st.plotly_chart(fig, use_container_width=True)
-
 
 def st_plot_overall(df):
 
@@ -401,8 +411,7 @@ def st_plot_overall(df):
 
     l.st.plotly_chart(fig)
 
-
-def make_heatmap(input_df, input_y, input_x, input_color, input_color_theme):
+def make_heatmap(input_df, input_x, input_y, input_color, input_color_theme):
     l.alt.Chart(input_df).mark_rect().encode(
             y=l.alt.Y(f'{input_y}:O', axis=l.alt.Axis(title="Year", titleFontSize=18, titlePadding=15, titleFontWeight=900, labelAngle=0)),
             x=l.alt.X(f'{input_x}:O', axis=l.alt.Axis(title="", titleFontSize=18, titlePadding=15, titleFontWeight=900)),
