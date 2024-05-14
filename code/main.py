@@ -49,7 +49,6 @@ with row2_col_1:
     h.st_plot_overall(d2)
 with row2_col_2:
     h.plot_pnl(d2)
-
 with h.l.st.expander("Funds Comparison"):
     h.st_comparison(d1)
 

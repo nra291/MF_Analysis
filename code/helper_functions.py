@@ -412,21 +412,29 @@ def st_plot_overall(df):
     l.st.plotly_chart(fig)
 
 def make_heatmap(input_df, input_x, input_y, input_color, input_color_theme):
-    l.alt.Chart(input_df).mark_rect().encode(
-            y=l.alt.Y(f'{input_y}:O', axis=l.alt.Axis(title="Year", titleFontSize=18, titlePadding=15, titleFontWeight=900, labelAngle=0)),
-            x=l.alt.X(f'{input_x}:O', axis=l.alt.Axis(title="", titleFontSize=18, titlePadding=15, titleFontWeight=900)),
-            color=l.alt.Color(f'{input_color}:Q',
-                             legend=None,
-                             scale=l.alt.Scale(scheme=input_color_theme)),
-            stroke=l.alt.value('black'),
-            strokeWidth=l.alt.value(0.25),
-        ).properties(width=900
-        ).configure_axis(
-        labelFontSize=12,
-        titleFontSize=12
-        ) 
-    # l.st.altair_chart(heatmap, use_container_width=True)
-    # return heatmap
+
+
+
+    # Create the heatmap
+    l.plt.figure(figsize=(10, 6))
+    l.plt.pcolor(input_df[input_y], vmin=-50, vmax=50, cmap='RdBu_r')  # Colormap for red (negative) to blue (positive)
+
+    # Add labels and title with customizations
+    l.plt.xticks(l.np.arange(len(input_df['Date'])), rotation=45, ha='right')  # Use formatted dates for labels
+    l.plt.yticks(l.np.arange(len(input_y)), input_y)
+    l.plt.colorbar(label='Percentage Change (%)')
+    l.plt.title('Daily Stock Percentage Changes (Generated from a DataFrame with Real Dates)')
+
+    # Enhance readability with grid and annotation options (uncomment if desired)
+    # l.plt.grid(True, which='both', linestyle='--', linewidth=0.5)  # Add grid lines
+
+    # Annotate values on the heatmap (uncomment if desired)
+    # for i in range(len(df['Date'])):
+    #     for j in range(len(stocks)):
+    #         l.plt.text(i, j, f"{df.iloc[j, i]:.2f}", ha='center', va='center', fontsize=8)  # Adjust formatting as needed
+
+    l.plt.tight_layout()
+    l.plt.show()
 
 def format_number(num):
     if num > 1000000:
