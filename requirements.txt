@@ -10,3 +10,4 @@ PyPDF2
 tabula
 plotly
 openpyxl
+matplotlib
