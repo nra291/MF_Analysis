@@ -353,8 +353,8 @@ def line_chart(input_df, input_x, input_y, input_color):
                     color = input_color,
                     markers=True,
                     text=c.percent_return,
-                    hover_data=c.percent_return)#,responsive=True, width=400, height=300)
-
+                    hover_data=c.percent_return,
+                    height=1000)
     
     fig.update_layout(
         xaxis=dict(
@@ -365,6 +365,7 @@ def line_chart(input_df, input_x, input_y, input_color):
             showgrid=True,  # Show grid lines
         ),
         hovermode="x",  # Display x-axis value on hover
+        
     )
 
     
@@ -374,7 +375,7 @@ def plot_pnl(df):
     fig = l.px.line(df,
                     x=c.as_of_date,
                     y=[c.pnl],
-                    title="PnL Over Time"
+                    title="PnL Over Time", 
                     )
 
     fig.update_layout(
@@ -409,7 +410,7 @@ def st_plot_overall(df):
         hovermode="x",  # Display x-axis value on hover
     )
 
-    l.st.plotly_chart(fig)
+    l.st.plotly_chart(fig, use_container_width=True)
 
 def make_heatmap(input_df, input_x, input_y, input_color, input_color_theme):
 
