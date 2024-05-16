@@ -412,6 +412,24 @@ def st_plot_overall(df):
 
     l.st.plotly_chart(fig, use_container_width=True)
 
+def plot_donut(df, chart_title, category_col, values_col):
+    import streamlit as st
+    import pandas as pd
+    import plotly.express as px
+
+    data = df.groupby(category_col)[values_col]
+
+    # Create donut chart with plotly express
+    fig = px.pie(
+        data, values=values_col, names=category_col, title=chart_title, hole=0.8
+    )
+
+    # Display the chart in Streamlit
+    st.plotly_chart(fig)
+
+def plot_mf_share(df):
+    plot_donut(df, 'Fund Allocation', c.amc, c.invested)
+
 def make_heatmap(input_df, input_x, input_y, input_color, input_color_theme):
 
 
