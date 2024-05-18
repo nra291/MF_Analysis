@@ -7,41 +7,23 @@ import os
 import streamlit as st
 
 
-d1, d2 = h.prepare_data(c.rel_data_folder)
+
 h.set_config() # Should be the first StrealLit Command in the app
 
-def save_uploaded_files(uploaded_files, target_folder, overwrite_checkbox):
-  if not os.path.exists(target_folder):
-    os.makedirs(target_folder)
-
-    for uploaded_file in uploaded_files:
-        file_path = os.path.join(target_folder, uploaded_file.name)
-        if os.path.exists(file_path):
-            if overwrite_checkbox:
-                with open(file_path, 'wb') as f:
-                    f.write(uploaded_file.getbuffer())
-                    st.success(f"File {uploaded_file.name} uploaded successfully (overwritten).")
-
-            else:
-                st.info(f"Skipping '{uploaded_file.name}' due to existing file.")
-        else:
-            with open(file_path, 'wb') as f:
-                f.write(uploaded_file.getbuffer())
-                st.success(f"File {uploaded_file.name} uploaded successfully!")
-
-    st.session_state['uploaded'] = True  # Update session state for successful upload
-    
-
-if 'uploaded' not in st.session_state:
-  st.session_state['uploaded'] = False  # Initialize session state
-
 with h.l.st.sidebar:
-    uploaded_files = h.l.st.file_uploader(label="Upload the Detailed Statmement you got from MF Central", 
-                                          accept_multiple_files=True)
-    overwrite_checkbox = st.checkbox("Overwrite if FIle Exists ?")
-    if uploaded_files:
-        save_uploaded_files(uploaded_files, c.rel_data_folder, overwrite_checkbox)
+    label = "Select Person"
+    options = ["N", "B", "S"]
+    selected_fruit = st.selectbox(label, options)
 
+match selected_fruit:
+    case 'S':
+        folder = c.rel_data_folder_s
+    case 'B':
+        folder = c.rel_data_folder_b
+    case 'N':
+        folder = c.rel_data_folder_n
+
+d1, d2 = h.prepare_data(folder)
 
 row1_col_1, row1_col_2= h.l.st.columns(2)
 row2_col_1, row2_col_2= h.l.st.columns(2)
@@ -51,19 +33,11 @@ with row1_col_1:
     h.st_plot_overall(d2)
 with row1_col_2:
     h.plot_pnl(d2)
-# with row2_col_1:
-#     h.plot_mf_share(d1, c.amc)
-# with row2_col_2:
-#     h.plot_mf_share(d1, c.mf_key)
-# with row3_col_1:
-#     h.plot_profit_share(d1, c.amc)
-# with row3_col_2:
-#     h.plot_profit_share(d1, c.mf_key)
 
 data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
 data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
 
-data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
+# data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
 
 h.plot_invested_share(data_by_amc, c.amc, row2_col_1)
 h.plot_invested_share(data_by_key, c.mf_key, row2_col_2)

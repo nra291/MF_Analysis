@@ -432,8 +432,6 @@ def plot_invested_share(df,col_val, layout_col):
         plot_donut(df, 'Allocation by Fund-Folio', col_val, c.invested, layout_col)
     elif col_val == c.amc:
         plot_donut(df, 'Allocation by AMC', col_val, c.invested, layout_col)
-    
-    
 
 def plot_profit_share(df,col_val, layout_col):
     if col_val == c.mf_key:
