@@ -44,7 +44,7 @@ def prepare_data_old(folder):
     else:
         raise NoFilesFoundException("No xlsx files found in the specified folder.")
 
-def prepare_data(folder):
+def prepare_data(folder, selected_person):
     xlsx_filenames = get_filenames(folder)
     df_all_days = pd.DataFrame()
     df_total_inv = pd.DataFrame()
@@ -56,27 +56,33 @@ def prepare_data(folder):
         for filename in xlsx_filenames:
             file_data = read_data(os.path.join(folder, filename+'.xlsx'))
             if file_data is not None:
-                # Get all data from row 12 onwards
-                df_day = file_data.iloc[12:]
-                # Assign the first row values to column names
-                df_day.columns = file_data.iloc[11]  
                 # Get the name from the first row
-                df_day['Person'] = file_data.iloc[0][1]
-                # Get the To date from row 7
-                todate = l.datetime.datetime.strptime((file_data.iloc[6][1]).strip(), "%d-%b-%Y")
-                df_day['As_of_Date'] = todate
-                # Keep appending the transaction data for all days
-                df_list_day.append(df_day)
-                
+                person = ''
+                # this converts first character to upper case and all other lower case.  Also removes leading spaces
+                person = file_data.iloc[0][1].title().lstrip()  
+                # Process Data only for the selected person
+                if person == selected_person:
 
-                # Get data from rows 9 and 10
-                df_inv = file_data.iloc[9:10,:3]
-                # Assign the first row values to column names
-                df_inv.columns = file_data.iloc[8,:3]
-                # Get the To date from row 7
-                df_inv['As_of_Date'] = todate
-                # Keep appending the total Investment data for all days
-                df_list_total_inv.append(df_inv)
+                    # Get all data from row 12 onwards
+                    df_day = file_data.iloc[12:]
+                    # Assign the first row values to column names
+                    df_day.columns = file_data.iloc[11]  
+                    df_day['Person'] = person
+                    # Get the To date from row 7
+                    todate = l.datetime.datetime.strptime((file_data.iloc[6][1]).strip(), "%d-%b-%Y")
+                    df_day['As_of_Date'] = todate
+                    # Keep appending the transaction data for all days
+                    df_list_day.append(df_day)
+                    
+
+                    # Get data from rows 9 and 10
+                    df_inv = file_data.iloc[9:10,:3]
+                    # Assign the first row values to column names
+                    df_inv.columns = file_data.iloc[8,:3]
+                    # Get the To date from row 7
+                    df_inv['As_of_Date'] = todate
+                    # Keep appending the total Investment data for all days
+                    df_list_total_inv.append(df_inv)
 
         if df_list_day:
             df_all_days = pd.concat(df_list_day, ignore_index=True)
@@ -172,53 +178,12 @@ def data_massaging(df):
 
 def consolidate_categories(df):
 # prompt: Convert category values from EQUITY to Equity,  Liquid Fund to Liquid, Cash to Liquid
-    df['Category'] = df['Category'].replace(['EQUITY'], 'Equity')
-    df['Category'] = df['Category'].replace(['EQUITY FUND'], 'Equity')
-    df['Category'] = df['Category'].replace(['LIQUID FUND'], 'Liquid')
-    df['Category'] = df['Category'].replace(['CASH'], 'Liquid')
-    df['Category'] = df['Category'].replace(['LIQUID'], 'Liquid')
+    df[c.category] = df[c.category].replace(['EQUITY'], c.equity)
+    df[c.category] = df[c.category].replace(['EQUITY FUND'], c.equity)
+    df[c.category] = df[c.category].replace(['LIQUID FUND'], 'Liquid')
+    df[c.category] = df[c.category].replace(['CASH'], 'Liquid')
+    df[c.category] = df[c.category].replace(['LIQUID'], 'Liquid')
     return df
-
-def remove_strings(text):
-#   Remove unwanted strings
-    text = text.lower()
-    text = text.replace("-", "")
-    text = text.replace("growth", "")
-    text = text.replace("fund", "")
-    text = text.replace("direct", "")
-    text = text.replace("plan", "")
-    text = text.replace("option", "")
-
-    text = text.replace("quant quantamental", "QQM")
-    text = text.replace("quant momentum", "QMO")
-    text = text.replace("quant small cap", "QSC")
-    text = text.replace("quant flexi cap", "QFC")
-    text = text.replace("quant liquid    ", "QLI")
-
-    text = text.replace("hdfc small cap", "HSC")
-    text = text.replace("icici prudential nifty alpha lowvolatility 30 etf fof    ", "IAL")
-    text = text.replace("parag parikh liquid     ", "PLI")
-    text = text.replace("parag parikh flexi cap     (formerly parag parikh long term value )", "PFC")
-
-
-    text = text.replace("nippon india small cap", "NSC")
-    text = text.replace("nippon india liquid", "NLI")
-    text = text.replace("nippon india", "NIP") # always keep it at the last
-
-    text = text.replace("uti liquid  (formerly uti liquid cash )", "ULI")
-    text = text.replace("uti nifty200 momentum 30 index", "UTI-Momentum")
-    # UTI Nifty200 Momentum 30 Index Fund - Direct Plan
-
-
-    text = text.replace(" ", "") # Remove unwanted spaces at the last
-
-    # text = text.replace("", "")
-    # text = text.replace("", "")
-    # text = text.replace("", "")
-    # text = text.replace("", "")
-    # text = text.replace("", "")
-
-    return text
 
 def remove_strings_2(text):
     text = text.lower()
@@ -258,7 +223,9 @@ def remove_strings_2(text):
 
     text = text.replace(" ", "") # Remove unwanted spaces at the last
 
-    # text = text.replace("", "")
+    text = text.replace("GEETIKA ANAND", c.silky)
+    text = text.replace("UMESH ANAND", c.bablu)
+    text = text.replace("NITIN ANAND", c.nitin)
     # text = text.replace("", "")
     # text = text.replace("", "")
     # text = text.replace("", "")
@@ -333,8 +300,8 @@ def st_sidebar(df):
 
 def st_comparison(df):
     sorted_fund_keys = sorted(df["mf_key"].unique()) # Only Select Equity Funds
-    default_options = sorted(df[(df['AMC Name'] == 'Quant MF') & (df['Category']=='Equity') & (df[c.scheme_short] != 'ICICI-AlphaLow')]["mf_key"].unique()) # Only Select Equity Funds
-    #  = sorted(df[(df['Category']=='Equity') & ()])]["mf_key"].unique()) # Only Select Equity Funds
+    default_options = sorted(df[(df['AMC Name'] == 'Quant MF') & (df[c.category]==c.equity) & (df[c.scheme_short] != 'ICICI-AlphaLow')]["mf_key"].unique()) # Only Select Equity Funds
+    #  = sorted(df[(df[c.category]==c.equity) & ()])]["mf_key"].unique()) # Only Select Equity Funds
     options = l.st.multiselect(
         label='Select the Funds to compare',
         options=sorted_fund_keys,
@@ -471,58 +438,71 @@ def format_number(num):
         return f'{round(num / 1000000, 1)} M'
     return f'{num // 1000} K'
 
-def plot_bar(df):
+def plot_stacked_bar(df, x_value):
 
     df[c.invested] = df[c.invested].astype(float)
     df[c.returns] = df[c.returns].astype(float)
 
+    df = df.sort_values(by=c.percent_return, ascending=False)
+
     # Melt the dataframe
-    df_melted = df.melt(id_vars=c.amc, value_vars=[c.invested, c.returns], var_name='Type', value_name='Amount')
+    df_melted = df.melt(id_vars=x_value, value_vars=[c.invested, c.returns], var_name='Type', value_name='Amount')
 
     # Create the stacked bar chart
-    fig = l.px.bar(df_melted, x=c.amc, y='Amount', color='Type', title='Investment and Profit by Stock')
+    fig = l.px.bar(df_melted, x=x_value, y='Amount', color='Type', title='Investment and Profit by Stock')
 
     # df_melted[c.invested] = df_melted['Amount'].astype(float)
 
     # Add annotations for the percentage
     for i, row in df.iterrows():
         fig.add_annotation(
-            x=row[c.amc],
+            x=row[x_value],
             y=row[c.invested] + row[c.returns],
             text=f"{row[c.percent_return]:.2f}%",
             showarrow=False,
             yshift=10
         )
 
-    l.st.plotly_chart(fig)
+    # Update layout to increase the y-axis range
+    # fig.update_yaxes(range=[0, max(df_melted['Amount'])*1.5])  # Increase range by 20%
+    # fig.update_yaxes(type='linear')
+    fig.update_layout(yaxis_tickformat=',d', yaxis_title='Value (Thousands)')
 
 
-    def summarize_key_amc(d1):
-        # data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
-        # data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
-        # data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
-
-        d1[c.invested] = d1[c.invested].astype(float)
-        d1[c.returns] = d1[c.returns].astype(float)
-
-        # Convert As_of_Date to datetime if not already
-        d1['As_of_Date'] = l.pd.to_datetime(d1['As_of_Date'])
-
-        # Get the latest As_of_Date for each AMC using transform
-        d1['Latest_As_of_Date'] = d1.groupby('AMC Name')['As_of_Date'].transform('max')
-
-        # Filter the DataFrame based on the latest As_of_Date
-        latest_data = d1[d1['As_of_Date'] == d1['Latest_As_of_Date']].drop(columns=['Latest_As_of_Date'])
+    l.st.plotly_chart(fig, use_container_width=True)
 
 
-        # Filter the DataFrame based on the latest As_of_Date
-        data_by_amc = latest_data.groupby('AMC Name').agg({
-            'Invested Value': 'sum',
-            'Returns': 'sum',
-            'As_of_Date': 'max'
-        }).reset_index()
+def summarize_key_amc(d1):
+    # data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1[c.category]==c.equity)].sort_values(by=c.amc)
+    # data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
+    # data_by_amc = data_by_amc[(data_by_amc[c.category]==c.equity)]
+
+    d1[c.invested] = d1[c.invested].astype(float)
+    d1[c.returns] = d1[c.returns].astype(float)
+
+    # Convert As_of_Date to datetime if not already
+    d1[c.as_of_date] = l.pd.to_datetime(d1[c.as_of_date])
+
+    # Get the latest As_of_Date for each AMC using transform
+    d1['Latest_As_of_Date'] = d1.groupby(c.amc)[c.as_of_date].transform('max')
+
+    # Filter the DataFrame based on the latest As_of_Date
+    latest_data = d1[d1[c.as_of_date] == d1['Latest_As_of_Date']].drop(columns=['Latest_As_of_Date'])
 
 
-        data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
+    # Filter the DataFrame based on the latest As_of_Date
+    data_by_amc = latest_data.groupby(c.amc).agg({
+        c.invested: 'sum',
+        c.returns: 'sum',
+        c.as_of_date: 'max'
+    }).reset_index()
 
-        return data_by_key, data_by_amc
+    # Calculate percentage return, round to two decimals, and create a new column
+    data_by_amc[c.percent_return] = (( data_by_amc[c.returns] / data_by_amc[c.invested] ) * 100).round(2)
+    data_by_amc[c.percent_return] = data_by_amc[c.percent_return].astype('float64')
+
+    data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1[c.category]==c.equity)].sort_values(by=c.amc)
+
+    data_by_amc.sort_values(c.percent_return, ascending=False).reset_index(drop=True)
+
+    return data_by_key, data_by_amc

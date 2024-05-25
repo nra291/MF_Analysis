@@ -4,6 +4,10 @@ rel_data_folder_s = "data/s"
 rel_data_folder_b = "data/b"
 rel_data_folder_n = "data/n"
 
+silky = 'Geetika Anand'
+nitin = 'Nitin Anand'
+bablu = 'Umesh Raghunandanlal Anand'
+
 as_of_date = "As_of_Date"
 folio = "Folio No."
 amc = 'AMC Name'
@@ -20,6 +24,7 @@ nip = "NIP"
 pnl = "Profit/Loss"
 total_inv = "Total Investments"
 current_portfolio_value = "Current Portfolio Value"
+equity = 'Equity'
 
 
 # Docker example : https://github.com/codereverser/folioman?tab=readme-ov-file
