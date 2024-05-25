@@ -36,7 +36,6 @@ with row1_col_2:
 
 data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
 data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
-data_by_amc = data_by_amc.groupby(c.amc)
 # data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
 
 h.plot_invested_share(data_by_amc, c.amc, row2_col_1)
