@@ -12,7 +12,7 @@ h.set_config() # Should be the first StrealLit Command in the app
 
 with h.l.st.sidebar:
     label = "Select Person"
-    options = ["N", "B", "S"]
+    options = ["S", "B", "N"]
     selected_fruit = st.selectbox(label, options)
 
 match selected_fruit:
@@ -36,7 +36,7 @@ with row1_col_2:
 
 data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
 data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
-
+data_by_amc = data_by_amc.groupby(c.amc)
 # data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
 
 h.plot_invested_share(data_by_amc, c.amc, row2_col_1)
@@ -46,5 +46,7 @@ h.plot_profit_share(data_by_key, c.mf_key, row3_col_2)
 
 with h.l.st.expander("Funds Comparison"):
     h.st_comparison(d1)
+
+h.plot_bar(data_by_amc)
 
 # h.make_heatmap(d1, c.as_of_date, c.percent_return,c.mf_key, 'blues') #

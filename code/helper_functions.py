@@ -470,3 +470,28 @@ def format_number(num):
             return f'{num // 1000000} M'
         return f'{round(num / 1000000, 1)} M'
     return f'{num // 1000} K'
+
+def plot_bar(df):
+
+    df[c.invested] = df[c.invested].astype(float)
+    df[c.returns] = df[c.returns].astype(float)
+
+    # Melt the dataframe
+    df_melted = df.melt(id_vars=c.amc, value_vars=[c.invested, c.returns], var_name='Type', value_name='Amount')
+
+    # Create the stacked bar chart
+    fig = l.px.bar(df_melted, x=c.amc, y='Amount', color='Type', title='Investment and Profit by Stock')
+
+    # df_melted[c.invested] = df_melted['Amount'].astype(float)
+
+    # Add annotations for the percentage
+    for i, row in df.iterrows():
+        fig.add_annotation(
+            x=row[c.amc],
+            y=row[c.invested] + row[c.returns],
+            text=f"{row[c.percent_return]:.2f}%",
+            showarrow=False,
+            yshift=10
+        )
+
+    l.st.plotly_chart(fig)
