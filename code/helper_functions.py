@@ -495,3 +495,34 @@ def plot_bar(df):
         )
 
     l.st.plotly_chart(fig)
+
+
+    def summarize_key_amc(d1):
+        # data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
+        # data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
+        # data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
+
+        d1[c.invested] = d1[c.invested].astype(float)
+        d1[c.returns] = d1[c.returns].astype(float)
+
+        # Convert As_of_Date to datetime if not already
+        d1['As_of_Date'] = l.pd.to_datetime(d1['As_of_Date'])
+
+        # Get the latest As_of_Date for each AMC using transform
+        d1['Latest_As_of_Date'] = d1.groupby('AMC Name')['As_of_Date'].transform('max')
+
+        # Filter the DataFrame based on the latest As_of_Date
+        latest_data = d1[d1['As_of_Date'] == d1['Latest_As_of_Date']].drop(columns=['Latest_As_of_Date'])
+
+
+        # Filter the DataFrame based on the latest As_of_Date
+        data_by_amc = latest_data.groupby('AMC Name').agg({
+            'Invested Value': 'sum',
+            'Returns': 'sum',
+            'As_of_Date': 'max'
+        }).reset_index()
+
+
+        data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
+
+        return data_by_key, data_by_amc

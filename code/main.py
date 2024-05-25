@@ -34,9 +34,7 @@ with row1_col_1:
 with row1_col_2:
     h.plot_pnl(d2)
 
-data_by_key = d1[d1[c.as_of_date] == d1.groupby(c.mf_key)[c.as_of_date].transform(max)][(d1['Category']=='Equity')].sort_values(by=c.amc)
-data_by_amc = d1[d1[c.as_of_date] == d1.groupby(c.amc)[c.as_of_date].transform(max)]
-# data_by_amc = data_by_amc[(data_by_amc['Category']=='Equity')]
+data_by_key, data_by_amc = h.summarize_key_amc(d1)
 
 h.plot_invested_share(data_by_amc, c.amc, row2_col_1)
 h.plot_invested_share(data_by_key, c.mf_key, row2_col_2)
