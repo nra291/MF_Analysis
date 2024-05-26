@@ -12,7 +12,7 @@ h.set_config() # Should be the first StrealLit Command in the app
 
 with h.l.st.sidebar:
     label = "Select Person"
-    options = ["S", "B", "N"]
+    options = ["B", "S", "N"]
     selected_person = st.selectbox(label, options)
 
 match selected_person:
@@ -52,5 +52,5 @@ h.plot_stacked_bar(data_by_key, c.mf_key)
 with h.l.st.expander("Funds Comparison"):
     h.st_comparison(d1)
 
-    
+
 # h.make_heatmap(d1, c.as_of_date, c.percent_return,c.mf_key, 'blues') #
