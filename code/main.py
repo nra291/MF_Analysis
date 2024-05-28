@@ -53,4 +53,4 @@ with h.l.st.expander("Funds Comparison"):
     h.st_comparison(d1)
 
 
-# h.make_heatmap(d1, c.as_of_date, c.percent_return,c.mf_key, 'blues') #
+# h.make_heatmap(d1, c.as_of_date, c.percent_return,c.mf_key, 'blues')
