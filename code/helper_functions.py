@@ -265,7 +265,7 @@ def set_config():
     initial_sidebar_state="collapsed")
 
     l.st.title(" :bar_chart: SBN Portfolio") # Title inside the Dashboard
-    l.st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+    l.st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 def st_sidebar(df):
 
