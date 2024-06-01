@@ -440,6 +440,11 @@ def format_number(num):
 
 def plot_stacked_bar(df, x_value):
 
+    if x_value == c.mf_key:
+        my_title = 'Investment and Profits by Folio'
+    elif x_value == c.amc:
+        my_title = 'Investment and Profits by AMC'
+
     df[c.invested] = df[c.invested].astype(float)
     df[c.returns] = df[c.returns].astype(float)
 
@@ -449,7 +454,7 @@ def plot_stacked_bar(df, x_value):
     df_melted = df.melt(id_vars=x_value, value_vars=[c.invested, c.returns], var_name='Type', value_name='Amount')
 
     # Create the stacked bar chart
-    fig = l.px.bar(df_melted, x=x_value, y='Amount', color='Type', title='Investment and Profit by Stock')
+    fig = l.px.bar(df_melted, x=x_value, y='Amount', color='Type', title=my_title)
 
     # df_melted[c.invested] = df_melted['Amount'].astype(float)
 
